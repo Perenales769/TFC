@@ -1,0 +1,1 @@
+Proceso: n8n recupera los documentos desde Google Drive, los divide en fragmentos, busca en el RAG los fragmentos más relevantes y los envía al LLM con el prompt de sistema.  Salida: el LLM devuelve un informe estructurado con áreas cubiertas, nivel de cobertura y áreas ausentes, citando párrafos concretos del documento.
