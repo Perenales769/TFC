@@ -1,1 +1,1 @@
-Aqui esta mi Asistente de I.A. la Arquitectura de forma visual y mi Diagrama de flujo.
+Aqui esta mi Asistente de I.A. la Arquitectura de forma visual, los prompts y mi Diagrama de flujo.
