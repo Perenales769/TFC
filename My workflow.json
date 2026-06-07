@@ -1,0 +1,346 @@
+{
+  "name": "My workflow",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -944,
+        -544
+      ],
+      "id": "b93ec320-b80e-48a6-8668-c4cac6fcb7f6",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "resource": "fileFolder",
+        "filter": {
+          "folderId": {
+            "__rl": true,
+            "value": "1RPEH7AD4fLQVxmpzUxb-0r8EWzAbPj-B",
+            "mode": "list",
+            "cachedResultName": "TFC",
+            "cachedResultUrl": "https://drive.google.com/drive/folders/1RPEH7AD4fLQVxmpzUxb-0r8EWzAbPj-B"
+          }
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        -768,
+        -544
+      ],
+      "id": "a1afbb87-3a7b-4233-88a0-d41d8e2a7290",
+      "name": "Search files and folders",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "ggGSoeZVDBIsgc9G",
+          "name": "Google Drive OAuth2 API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value": "1Mf1Szpe9IwAY8jZxnNrE4agMana6sdAr",
+          "mode": "list",
+          "cachedResultName": "MIDTECH_Politica_Seguridad_PSI.pdf",
+          "cachedResultUrl": "https://drive.google.com/file/d/1Mf1Szpe9IwAY8jZxnNrE4agMana6sdAr/view?usp=drivesdk"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        -608,
+        -544
+      ],
+      "id": "b54de463-2677-45cf-956f-cb02a81b5a8b",
+      "name": "Download file",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "ggGSoeZVDBIsgc9G",
+          "name": "Google Drive OAuth2 API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "pdf",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1.1,
+      "position": [
+        -432,
+        -544
+      ],
+      "id": "8e9892f3-5d72-44e7-a02d-88daf42ef35c",
+      "name": "Extract from File"
+    },
+    {
+      "parameters": {
+        "mode": "load",
+        "memoryKey": {
+          "__rl": true,
+          "mode": "list",
+          "value": "vector_store_key"
+        },
+        "prompt": "Proceso: n8n recupera los documentos desde Google Drive, los divide en fragmentos, busca en el RAG los fragmentos más relevantes y los envía al LLM con el prompt de sistema.  Salida: el LLM devuelve un informe estructurado con áreas cubiertas, nivel de cobertura y áreas ausentes, citando párrafos concretos del documento."
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreInMemory",
+      "typeVersion": 1.3,
+      "position": [
+        -272,
+        -544
+      ],
+      "id": "27581d1f-f0c2-4076-9783-e943c30ee215",
+      "name": "Simple Vector Store"
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.embeddingsGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        -272,
+        -384
+      ],
+      "id": "c590e5c8-018a-4275-b67c-2d267b44f21d",
+      "name": "Embeddings Google Gemini",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "k2oCrjGLeasbSlMU",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        -816,
+        -928
+      ],
+      "id": "c6ae1529-f69e-4559-af6d-23740ff586e1",
+      "name": "When chat message received",
+      "webhookId": "a6352cf8-94ff-4189-9d22-36cc36505ed0"
+    },
+    {
+      "parameters": {
+        "options": {
+          "systemMessage": "Asumo mi rol como MIDTECH-AI para asistir en materia de ciberseguridad y cumplimiento normativo, basándome exclusivamente en el RGPD, ISO 27001, ENS y la Política de Seguridad de MIDTECH S.A.\n\nPara las consultas fuera de este alcance, utilizaré la respuesta restringida que has indicado. Quedo a la espera de tu primera consulta o la de tu compañero.\n\n\n\n\n\n\n1. Evaluación de Políticas\nAnte una petición de \"analiza la política\", se debe generar un informe detallado con estos tres puntos:\n\n(a) Alcance: Extraer y citar textualmente lo que la política de MIDTECH menciona.\n\n(b) Alcance efectivo: Calificar como completo, parcial o superficial, justificando la valoración.\n\n(c) Brechas: Identificar los requisitos faltantes según ISO 27001, GDPR y el ENS.\n\n2. Análisis de Brechas (Gap Analysis)\nAnte las peticiones de \"gap analysis\" o \"detectar incumplimientos\", se presentará la información en una tabla siguiendo este formato:\n\n| Área normativa | Carencia detectada | Criticidad | Referencia normativa |\n\nNota: La tabla debe estar ordenada jerárquicamente, empezando por la criticidad \"Alta\", y los datos deben estar ajustados exclusivamente al contexto de MIDTECH.\n\n3. Resolución de Consultas de Cumplimiento\nPara cualquier pregunta sobre auditoría, se debe responder siguiendo estrictamente este orden:\n\n(A) Evidencia interna: Cita literal del documento de MIDTECH indicando la sección.\n\n(B) Requisito externo: Referencia al control o artículo específico de la norma (ISO/GDPR/ENS).\n\n(C) Dictamen: Indicar claramente si el estado es: cumple, cumple parcialmente o incumple.\n\n4. Definición de Acciones de Mejora\nCuando se solicite un \"plan de acción\" o \"mejoras\", se deberá completar la siguiente tabla:\n\n| Mejora propuesta | Normativa que la justifica | Prioridad | Esfuerzo |\n\nNota: El orden debe priorizar las acciones de alta prioridad y bajo esfuerzo.\n\nDIRECTRIZ PRINCIPAL: Está estrictamente prohibido utilizar información genérica o supuesta. El contenido debe extraerse exclusivamente de los documentos de MIDTECH. En caso de que un documento no contenga la información necesaria, es obligatorio indicarlo explícitamente."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        -672,
+        -928
+      ],
+      "id": "44f72e9d-325e-4574-8f09-4e3010e6d00c",
+      "name": "AI Agent",
+      "retryOnFail": true
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.5-flash",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        -672,
+        -784
+      ],
+      "id": "1dd039a3-108f-4358-9575-0649b0c36ebe",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "k2oCrjGLeasbSlMU",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.4,
+      "position": [
+        -576,
+        -672
+      ],
+      "id": "aede47e6-298a-4f38-8a15-5c930df0a155",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "mode": "retrieve-as-tool",
+        "toolDescription": "Busca en los documentos de normativa (GDPR, ISO 27001, ENS) y en la política de seguridad de MIDTECH para responder preguntas de compliance y auditoría",
+        "memoryKey": {
+          "__rl": true,
+          "value": "vector_store_key",
+          "mode": "list",
+          "cachedResultName": "vector_store_key"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreInMemory",
+      "typeVersion": 1.3,
+      "position": [
+        -384,
+        -816
+      ],
+      "id": "122fb9a5-e406-4ab7-8f18-0a17a11f2365",
+      "name": "Simple Vector Store1"
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.embeddingsGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        -384,
+        -688
+      ],
+      "id": "35c222ea-5489-4dba-ad70-46596cb6892b",
+      "name": "Embeddings Google Gemini1",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "k2oCrjGLeasbSlMU",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Search files and folders",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search files and folders": {
+      "main": [
+        [
+          {
+            "node": "Download file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download file": {
+      "main": [
+        [
+          {
+            "node": "Extract from File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract from File": {
+      "main": [
+        [
+          {
+            "node": "Simple Vector Store",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings Google Gemini": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Simple Vector Store",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Vector Store1": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings Google Gemini1": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Simple Vector Store1",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "61ed5a13-60c9-47ad-b4ae-1ca072726e83",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "17b17daf920da1370fcc33c419825576f3c13003cc556afd7bcfaca3e3832241"
+  },
+  "nodeGroups": [],
+  "id": "yJ16XBStDy5W7sCJ",
+  "tags": []
+}
